@@ -54,7 +54,7 @@ public class Bot implements BotAPI{
         if (Math.abs(objectCenter - playerCenter) < 2)
             return 0;
         if (playerCenter > objectCenter) {
-           return -1*speed * dt;
+           return -2*speed * dt;
         }
         else if (playerCenter < objectCenter) {
             return speed * dt;
