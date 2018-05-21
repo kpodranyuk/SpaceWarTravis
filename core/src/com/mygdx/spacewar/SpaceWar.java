@@ -83,7 +83,9 @@ public class SpaceWar extends ApplicationAdapter implements SpaceWarAPI {
     private long lastShootTime;
     
     private static final long enemyShootDeltaTime = 600;
-    private long enemyLastShootTime;
+    
+    private static long enemyPortalDeltaTime = 1200;
+    private long enemyLastPortalTime;
     
     private static final long spacePushedDeltaTime = 150;
     private long spacePushedTime;
@@ -307,6 +309,7 @@ public class SpaceWar extends ApplicationAdapter implements SpaceWarAPI {
         this.spacePushedTime = 0;
         this.enemiesDestroyed = 0;          /// Количество сбитых врагов   
         this.lastHealthBonusTime = 0;
+        this.enemyLastPortalTime = 0;
         
         // Создаем модель
         system = new GameSystem();
@@ -394,7 +397,6 @@ public class SpaceWar extends ApplicationAdapter implements SpaceWarAPI {
                     missile.rect.y = newEnemy.rect.y + missile.rect.height;
                     enemysMissiles.add(missile);
                 }
-                enemyLastShootTime = TimeUtils.nanosToMillis(TimeUtils.nanoTime());
             }
         }        
     }
@@ -447,6 +449,7 @@ public class SpaceWar extends ApplicationAdapter implements SpaceWarAPI {
     private void controlEnemiesSprites() {
         // Задаем итератор для массива врагов
         Iterator<ObjectSprite> iter = enemies.iterator();
+        boolean needMove = Math.abs(enemyLastPortalTime - TimeUtils.nanosToMillis(TimeUtils.nanoTime())) > enemyPortalDeltaTime;
         // Для каждого врага..
         while(iter.hasNext()) {
             ObjectSprite curEnemy = iter.next();
@@ -468,7 +471,17 @@ public class SpaceWar extends ApplicationAdapter implements SpaceWarAPI {
                 this.state = GAMEOVER;
                 //continue;
             }
+            if (needMove){
+                randomMoveObject(curEnemy.rect);
+                enemyLastPortalTime = TimeUtils.nanosToMillis(TimeUtils.nanoTime());
+            }
         }
+    }
+    
+    private void randomMoveObject(Rectangle objRect){
+        float maxHeight = 450 - objRect.height - 15;
+        float newHeight = MathUtils.random(0, maxHeight);
+        objRect.y = newHeight;
     }
     
     // Может пересечься либо с пользовательским кораблем, либо с пользовательским снарядом
